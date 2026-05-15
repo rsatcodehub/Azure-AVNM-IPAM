@@ -1,0 +1,168 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.41.2.15936",
+      "templateHash": "16157435492859240624"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location of azure virtual network manager"
+      }
+    },
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Azure virtual network manager"
+      }
+    },
+    "managementGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Management groups to be managed by AVNM"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "test-avnm-with-mg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('name')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "managementGroups": {
+            "value": "[parameters('managementGroups')]"
+          },
+          "resourceLock": {
+            "value": "CanNotDelete"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.42.1.51946",
+              "templateHash": "15581748202016389280"
+            },
+            "name": "Azure Virtual Network Manager",
+            "description": "Deploys an Azure Virtual Network Manager (IPAM) instance with configurable scope and scope accesses.",
+            "owner": "Swinburne"
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Azure Virtual Network Manager"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for AVNM deployment"
+              }
+            },
+            "managementGroups": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "example": "/providers/Microsoft.Management/managementGroups/mg-name",
+                "description": "Management groups to be managed by AVNM"
+              }
+            },
+            "resourceLock": {
+              "type": "string",
+              "defaultValue": "CanNotDelete",
+              "allowedValues": [
+                "NotSpecified",
+                "ReadOnly",
+                "CanNotDelete"
+              ],
+              "metadata": {
+                "description": "Optional. Specify the type of resource lock."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "doc": "https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources?tabs=bicep#arm-templates",
+                "example": {
+                  "tagKey": "string"
+                },
+                "description": "Optional. Resource tags."
+              }
+            }
+          },
+          "variables": {
+            "lockName": "[toLower(format('{0}-{1}-lck', parameters('name'), parameters('resourceLock')))]",
+            "hasManagementGroups": "[greater(length(parameters('managementGroups')), 0)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkManagers",
+              "apiVersion": "2024-07-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "networkManagerScopes": {
+                  "managementGroups": "[if(variables('hasManagementGroups'), parameters('managementGroups'), createArray())]",
+                  "subscriptions": []
+                },
+                "networkManagerScopeAccesses": []
+              }
+            },
+            {
+              "condition": "[not(equals(parameters('resourceLock'), 'NotSpecified'))]",
+              "type": "Microsoft.Authorization/locks",
+              "apiVersion": "2017-04-01",
+              "scope": "[resourceId('Microsoft.Network/networkManagers', parameters('name'))]",
+              "name": "[variables('lockName')]",
+              "properties": {
+                "level": "[parameters('resourceLock')]",
+                "notes": "[if(equals(parameters('resourceLock'), 'CanNotDelete'), 'Cannot delete resource or child resources.', 'Cannot modify the resource or child resources.')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', parameters('name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "avnmId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the deployed Azure Virtual Network Manager."
+              },
+              "value": "[resourceId('Microsoft.Network/networkManagers', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the deployed Azure Virtual Network Manager."
+              },
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
