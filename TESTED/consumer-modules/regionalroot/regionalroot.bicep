@@ -25,7 +25,7 @@ param avnmName string
 param resourceLock string = 'CanNotDelete'
 
 module testregionalPool 'br/BicepModules:network/ipam-regionalpool:1.0.1' = {
-  name: 'deploy-regional-pool'
+  name: 'deploy-regional-pool-${regionLocation}'
   params: {
     avnmName: avnmName
     regionLocation: regionLocation

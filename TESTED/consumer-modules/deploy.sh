@@ -21,9 +21,14 @@ az deployment group create --resource-group rg-tst-ase-autoipam-003  --template-
 az deployment group create \
    --resource-group rg-tst-ae-avnm \
    --template-file regionalroot.bicep \
-   --parameters regionalroot.bicepparam --debug
+   --parameters regionalroot.tst.ase.bicepparam --debug
 
-az deployment group create --resource-group rg-tst-ae-avnm  --template-file regionalroot.bicep --parameters regionalroot.bicepparam  --debug
+
+az deployment group create \
+   --resource-group rg-tst-ae-avnm \
+   --template-file regionalroot.bicep \
+   --parameters regionalroot.tst.ae.bicepparam --debug
+
 
 
 ####
